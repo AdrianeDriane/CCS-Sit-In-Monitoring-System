@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerRequest } from "../lib/authApi";
-import type { UserRole } from "../types";
 
 interface RegisterFormData {
   idNumber: string;
@@ -9,7 +8,6 @@ interface RegisterFormData {
   firstName: string;
   middleName: string;
   email: string;
-  role: UserRole;
   course: string;
   yearLevel: string;
   address: string;
@@ -25,7 +23,6 @@ const RegisterForm: React.FC = () => {
     firstName: "",
     middleName: "",
     email: "",
-    role: "STUDENT",
     course: "",
     yearLevel: "",
     address: "",
@@ -66,7 +63,7 @@ const RegisterForm: React.FC = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         middleName: formData.middleName,
-        role: formData.role,
+        role: "STUDENT",
         password: formData.password,
         course: formData.course,
         yearLevel: formData.yearLevel,
@@ -93,7 +90,6 @@ const RegisterForm: React.FC = () => {
   const labelClasses = "text-sm font-medium text-slate-700 dark:text-slate-300";
   const iconClasses =
     "absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors";
-  const isStudent = formData.role === "STUDENT";
 
   return (
     <form className="flex flex-col gap-3.5" onSubmit={handleSubmit}>
@@ -123,7 +119,7 @@ const RegisterForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
         <div className="space-y-1.5 text-left">
           <label className={labelClasses} htmlFor="lastName">
             Last Name
@@ -177,11 +173,11 @@ const RegisterForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
         <div className="space-y-1.5 text-left">
           <label className={labelClasses} htmlFor="middleName">
             Middle Name{" "}
-            <span className="text-xs text-slate-400 font-normal">
+            <span className="text-xs font-normal text-slate-400">
               (optional)
             </span>
           </label>
@@ -233,10 +229,10 @@ const RegisterForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
         <div className="space-y-1.5 text-left">
-          <label className={labelClasses} htmlFor="role">
-            Role
+          <label className={labelClasses} htmlFor="course">
+            Course
           </label>
           <div className="relative group">
             <div className={`${iconClasses} z-10`}>
@@ -244,22 +240,25 @@ const RegisterForm: React.FC = () => {
                 className="material-symbols-outlined"
                 style={{ fontSize: 20 }}
               >
-                badge
+                school
               </span>
             </div>
             <select
               className={selectClasses}
-              id="role"
-              name="role"
-              value={formData.role}
+              id="course"
+              name="course"
+              value={formData.course}
               onChange={handleChange}
               required
             >
-              <option value="STUDENT">Student</option>
-              <option value="FACULTY">Faculty</option>
-              <option value="WS">WS</option>
+              <option value="" disabled>
+                Select course
+              </option>
+              <option value="BSCS">BSCS</option>
+              <option value="BSIT">BSIT</option>
+              <option value="ACT">ACT</option>
             </select>
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 pointer-events-none">
               <span
                 className="material-symbols-outlined"
                 style={{ fontSize: 18 }}
@@ -270,145 +269,74 @@ const RegisterForm: React.FC = () => {
           </div>
         </div>
 
-        {isStudent ? (
-          <div className="space-y-1.5 text-left">
-            <label className={labelClasses} htmlFor="course">
-              Course
-            </label>
-            <div className="relative group">
-              <div className={`${iconClasses} z-10`}>
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: 20 }}
-                >
-                  school
-                </span>
-              </div>
-              <select
-                className={selectClasses}
-                id="course"
-                name="course"
-                value={formData.course}
-                onChange={handleChange}
-                required={isStudent}
+        <div className="space-y-1.5 text-left">
+          <label className={labelClasses} htmlFor="yearLevel">
+            Year Level
+          </label>
+          <div className="relative group">
+            <div className={`${iconClasses} z-10`}>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: 20 }}
               >
-                <option value="" disabled>
-                  Select course
-                </option>
-                <option value="BSCS">BSCS</option>
-                <option value="BSIT">BSIT</option>
-                <option value="ACT">ACT</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: 18 }}
-                >
-                  expand_more
-                </span>
-              </div>
+                calendar_today
+              </span>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-1.5 text-left">
-            <label className={labelClasses} htmlFor="address">
-              Address
-            </label>
-            <div className="relative group">
-              <div className={iconClasses}>
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: 20 }}
-                >
-                  location_on
-                </span>
-              </div>
-              <input
-                className={inputClasses}
-                id="address"
-                name="address"
-                placeholder="Street, Barangay, City"
-                type="text"
-                value={formData.address}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {isStudent ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div className="space-y-1.5 text-left">
-            <label className={labelClasses} htmlFor="yearLevel">
-              Year Level
-            </label>
-            <div className="relative group">
-              <div className={`${iconClasses} z-10`}>
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: 20 }}
-                >
-                  calendar_today
-                </span>
-              </div>
-              <select
-                className={selectClasses}
-                id="yearLevel"
-                name="yearLevel"
-                value={formData.yearLevel}
-                onChange={handleChange}
-                required={isStudent}
+            <select
+              className={selectClasses}
+              id="yearLevel"
+              name="yearLevel"
+              value={formData.yearLevel}
+              onChange={handleChange}
+              required
+            >
+              <option value="" disabled>
+                Select year
+              </option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 pointer-events-none">
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: 18 }}
               >
-                <option value="" disabled>
-                  Select year
-                </option>
-                <option value="1">1st Year</option>
-                <option value="2">2nd Year</option>
-                <option value="3">3rd Year</option>
-                <option value="4">4th Year</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: 18 }}
-                >
-                  expand_more
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-1.5 text-left">
-            <label className={labelClasses} htmlFor="address">
-              Address
-            </label>
-            <div className="relative group">
-              <div className="absolute top-0 left-0 pl-3.5 pt-3 flex items-start pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: 20 }}
-                >
-                  location_on
-                </span>
-              </div>
-              <textarea
-                className="block w-full rounded-lg border-0 py-3 pl-10 pr-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary/50 sm:text-sm sm:leading-6 dark:bg-slate-800 dark:ring-slate-700 dark:text-white dark:placeholder:text-slate-500 transition-shadow duration-200 resize-none"
-                id="address"
-                name="address"
-                placeholder="Street, Barangay, City, Province"
-                rows={2}
-                value={formData.address}
-                onChange={handleChange}
-                required
-              />
+                expand_more
+              </span>
             </div>
           </div>
         </div>
-      ) : null}
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="space-y-1.5 text-left">
+        <label className={labelClasses} htmlFor="address">
+          Address
+        </label>
+        <div className="relative group">
+          <div className="absolute left-0 top-0 flex items-start pl-3.5 pt-3 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors">
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: 20 }}
+            >
+              location_on
+            </span>
+          </div>
+          <textarea
+            className="block w-full rounded-lg border-0 py-3 pl-10 pr-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary/50 sm:text-sm sm:leading-6 dark:bg-slate-800 dark:ring-slate-700 dark:text-white dark:placeholder:text-slate-500 transition-shadow duration-200 resize-none"
+            id="address"
+            name="address"
+            placeholder="Street, Barangay, City, Province"
+            rows={2}
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
         <div className="space-y-1.5 text-left">
           <label className={labelClasses} htmlFor="password">
             Password
@@ -435,7 +363,7 @@ const RegisterForm: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-slate-400 hover:text-slate-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 cursor-pointer hover:text-slate-600"
             >
               <span
                 className="material-symbols-outlined"
@@ -473,7 +401,7 @@ const RegisterForm: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-slate-400 hover:text-slate-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 cursor-pointer hover:text-slate-600"
             >
               <span
                 className="material-symbols-outlined"
@@ -486,7 +414,7 @@ const RegisterForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-start gap-2 mt-1">
+      <div className="mt-1 flex items-start gap-2">
         <input
           type="checkbox"
           id="terms"
@@ -495,19 +423,19 @@ const RegisterForm: React.FC = () => {
         />
         <label
           htmlFor="terms"
-          className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed"
+          className="text-xs leading-relaxed text-slate-500 dark:text-slate-400"
         >
           I agree to the{" "}
           <a
             href="#"
-            className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            className="font-semibold text-primary transition-colors hover:text-primary/80"
           >
             Terms of Service
           </a>{" "}
           and{" "}
           <a
             href="#"
-            className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            className="font-semibold text-primary transition-colors hover:text-primary/80"
           >
             Lab Usage Policy
           </a>
@@ -527,7 +455,7 @@ const RegisterForm: React.FC = () => {
       ) : null}
 
       <button
-        className="mt-2 w-full rounded-lg bg-gradient-to-r from-primary to-[#0055aa] px-3.5 py-3.5 text-sm font-bold text-white shadow-sm hover:from-[#002244] hover:to-[#004488] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-all duration-300 transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+        className="mt-2 w-full rounded-lg bg-gradient-to-r from-primary to-[#0055aa] px-3.5 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:from-[#002244] hover:to-[#004488] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
         disabled={isSubmitting}
         type="submit"
       >

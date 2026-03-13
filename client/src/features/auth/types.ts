@@ -1,10 +1,13 @@
 export const ROLE_OPTIONS = [
   { value: "STUDENT", label: "Student", routePrefix: "student" },
   { value: "FACULTY", label: "Faculty", routePrefix: "faculty" },
-  { value: "WS", label: "WS", routePrefix: "ws" },
+  { value: "WS", label: "Admin", routePrefix: "ws" },
 ] as const;
 
 export type UserRole = (typeof ROLE_OPTIONS)[number]["value"];
+
+export const getRoleLabel = (role: UserRole) =>
+  ROLE_OPTIONS.find((item) => item.value === role)?.label ?? role;
 
 export interface AuthUser {
   id: number;

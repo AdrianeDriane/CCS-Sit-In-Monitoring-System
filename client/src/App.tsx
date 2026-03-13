@@ -30,7 +30,9 @@ function App() {
         />
         <Route
           path="/ws"
-          element={<RoleIndicatorPage expectedRole="WS" title="WS Dashboard" />}
+          element={
+            <RoleIndicatorPage expectedRole="WS" title="Admin Dashboard" />
+          }
         />
       </Routes>
     </BrowserRouter>

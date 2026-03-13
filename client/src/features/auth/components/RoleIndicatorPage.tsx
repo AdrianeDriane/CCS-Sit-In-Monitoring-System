@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { clearAuthUser, getAuthUser } from "../lib/authStorage";
-import type { UserRole } from "../types";
+import { getRoleLabel, type UserRole } from "../types";
 
 interface RoleIndicatorPageProps {
   expectedRole: UserRole;
@@ -12,6 +12,7 @@ const RoleIndicatorPage: React.FC<RoleIndicatorPageProps> = ({
   title,
 }) => {
   const user = getAuthUser();
+  const displayRole = user ? getRoleLabel(user.role) : "";
 
   if (!user || user.role !== expectedRole) {
     return <Navigate to="/login" replace />;
@@ -30,7 +31,7 @@ const RoleIndicatorPage: React.FC<RoleIndicatorPageProps> = ({
             </h1>
             <p className="mt-3 text-slate-500 dark:text-slate-400">
               {user.firstName} {user.lastName} is currently signed in as{" "}
-              <span className="font-semibold text-primary">{user.role}</span>.
+              <span className="font-semibold text-primary">{displayRole}</span>.
             </p>
           </div>
 
@@ -51,7 +52,7 @@ const RoleIndicatorPage: React.FC<RoleIndicatorPageProps> = ({
             Role indicator
           </p>
           <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-            {user.role}
+            {displayRole}
           </p>
           <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
             ID Number: {user.idNumber}
