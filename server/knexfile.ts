@@ -1,47 +1,44 @@
 import type { Knex } from "knex";
+import path from "path";
 
-// Update with your config settings.
+const migrationsDirectory = path.join(__dirname, "migrations");
+const seedsDirectory = path.join(__dirname, "seeds");
 
-const config: { [key: string]: Knex.Config } = {
+const sharedConfig = {
+  client: "pg",
+  migrations: {
+    directory: migrationsDirectory,
+    extension: "ts",
+    tableName: "knex_migrations",
+  },
+  seeds: {
+    directory: seedsDirectory,
+    extension: "ts",
+  },
+  pool: {
+    min: 0,
+    max: 10,
+  },
+} satisfies Partial<Knex.Config>;
+
+const config: Record<string, Knex.Config> = {
   development: {
-    client: "sqlite3",
+    ...sharedConfig,
     connection: {
-      filename: "./dev.sqlite3"
-    }
+      host: process.env.DB_HOST ?? "127.0.0.1",
+      port: Number(process.env.DB_PORT ?? 5432),
+      database: process.env.DB_NAME ?? "ccs_sitin_monitoring",
+      user: process.env.DB_USER ?? "postgres",
+      password: process.env.DB_PASSWORD ?? "postgres",
+      ssl:
+        process.env.DB_SSL === "true"
+          ? {
+              rejectUnauthorized: false,
+            }
+          : false,
+    },
   },
-
-  staging: {
-    client: "postgresql",
-    connection: {
-      database: "my_db",
-      user: "username",
-      password: "password"
-    },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      tableName: "knex_migrations"
-    }
-  },
-
-  production: {
-    client: "postgresql",
-    connection: {
-      database: "my_db",
-      user: "username",
-      password: "password"
-    },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      tableName: "knex_migrations"
-    }
-  }
-
 };
 
+export default config;
 module.exports = config;
