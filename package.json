@@ -1,0 +1,10 @@
+{
+  "name": "ccs-sitin-monitoring-system",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:down": "docker compose down",
+    "build:client": "npm --prefix client run build",
+    "build:server": "npm --prefix server run build"
+  }
+}
