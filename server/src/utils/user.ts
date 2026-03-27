@@ -11,4 +11,5 @@ export const toSafeUser = (user: UserRecord): SafeUser => ({
   course: user.course,
   yearLevel: user.yearLevel,
   address: user.address,
+  remainingSessions: user.remainingSessions,
 });

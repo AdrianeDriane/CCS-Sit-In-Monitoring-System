@@ -107,6 +107,7 @@ export const registerUser = async (input: RegisterInput): Promise<SafeUser> => {
     course: isStudent ? normalize(input.course ?? "") || null : null,
     yearLevel: isStudent ? normalize(input.yearLevel ?? "") || null : null,
     address: address || null,
+    remainingSessions: isStudent ? 30 : 0,
   });
 
   return toSafeUser(user);
@@ -163,4 +164,3 @@ export const updateStudentProfile = async (
 
   return toSafeUser(updatedUser);
 };
-

@@ -20,4 +20,5 @@ export interface AuthUser {
   course: string | null;
   yearLevel: string | null;
   address: string | null;
+  remainingSessions: number;
 }

@@ -14,6 +14,7 @@ export interface CreateUserInput {
   course?: string | null;
   yearLevel?: string | null;
   address?: string | null;
+  remainingSessions?: number;
 }
 
 export interface UpdateStudentProfileInput {
@@ -38,6 +39,7 @@ const columns = [
   "course",
   "year_level as yearLevel",
   "address",
+  "remaining_sessions as remainingSessions",
   "created_at as createdAt",
   "updated_at as updatedAt",
 ];
@@ -71,10 +73,21 @@ export const createUser = async (input: CreateUserInput) => {
       course: input.course ?? null,
       year_level: input.yearLevel ?? null,
       address: input.address ?? null,
+      remaining_sessions: input.remainingSessions ?? 30,
     })
     .returning(columns);
 
   return user as UserRecord;
+};
+
+export const decrementRemainingSessionsById = async (id: number) => {
+  const [user] = await db(USERS_TABLE)
+    .where({ id, role: "STUDENT" })
+    .where("remaining_sessions", ">", 0)
+    .decrement("remaining_sessions", 1)
+    .returning(columns);
+
+  return (user ?? null) as UserRecord | null;
 };
 
 export const findUserByIdNumberOrEmail = async (
@@ -120,4 +133,3 @@ export const updateStudentProfileById = async (
 
   return (user ?? null) as UserRecord | null;
 };
-

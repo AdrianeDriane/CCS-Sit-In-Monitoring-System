@@ -16,6 +16,7 @@ export async function seed(knex: Knex): Promise<void> {
       role: "FACULTY",
       password_hash: hashPassword(password),
       address: "Cebu City",
+      remaining_sessions: 0,
     },
     {
       id_number: "WS-1001",
@@ -26,6 +27,7 @@ export async function seed(knex: Knex): Promise<void> {
       role: "WS",
       password_hash: hashPassword(password),
       address: "Cebu City",
+      remaining_sessions: 0,
     },
     {
       id_number: "STU-1001",
@@ -38,6 +40,7 @@ export async function seed(knex: Knex): Promise<void> {
       course: "BSIT",
       year_level: "3",
       address: "Cebu City",
+      remaining_sessions: 30,
     },
   ]);
 }

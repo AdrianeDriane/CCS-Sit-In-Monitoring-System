@@ -14,6 +14,7 @@ export interface UserRecord {
   course: string | null;
   yearLevel: string | null;
   address: string | null;
+  remainingSessions: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,4 +30,5 @@ export interface SafeUser {
   course: string | null;
   yearLevel: string | null;
   address: string | null;
+  remainingSessions: number;
 }

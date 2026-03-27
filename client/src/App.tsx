@@ -8,6 +8,10 @@ import StudentHistoryPage from "./features/student/pages/StudentHistoryPage";
 import StudentProfilePage from "./features/student/pages/StudentProfilePage";
 import StudentReservationPage from "./features/student/pages/StudentReservationPage";
 import StudentRulesPage from "./features/student/pages/StudentRulesPage";
+import WsShell from "./features/ws/components/WsShell";
+import WsDashboardPage from "./features/ws/pages/WsDashboardPage";
+import WsRecordsPage from "./features/ws/pages/WsRecordsPage";
+import WsSitInPage from "./features/ws/pages/WsSitInPage";
 
 function App() {
   return (
@@ -32,12 +36,12 @@ function App() {
             />
           }
         />
-        <Route
-          path="/ws"
-          element={
-            <RoleIndicatorPage expectedRole="WS" title="Admin Dashboard" />
-          }
-        />
+        <Route path="/ws" element={<WsShell />}>
+          <Route index element={<WsDashboardPage />} />
+          <Route path="sitin" element={<WsSitInPage />} />
+          <Route path="sitin/:idNumber" element={<WsSitInPage />} />
+          <Route path="records" element={<WsRecordsPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

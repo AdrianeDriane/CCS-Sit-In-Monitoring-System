@@ -1,5 +1,8 @@
 import type { Knex } from "knex";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const migrationsDirectory = path.join(__dirname, "migrations");
 const seedsDirectory = path.join(__dirname, "seeds");
