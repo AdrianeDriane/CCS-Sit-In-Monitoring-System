@@ -1,7 +1,10 @@
 import {
   createUser,
+  findUserByEmailExcludingId,
+  findUserById,
   findUserByIdNumberOrEmail,
   findUserByIdentifier,
+  updateStudentProfileById,
 } from "../repositories/userRepository";
 import { USER_ROLES, type SafeUser, type UserRole } from "../types/auth";
 import { hashPassword, verifyPassword } from "../utils/password";
@@ -23,6 +26,17 @@ export interface RegisterInput {
   password: string;
   course?: string;
   yearLevel?: string;
+  address?: string;
+}
+
+export interface UpdateStudentProfileInput {
+  userId: number;
+  lastName: string;
+  firstName: string;
+  middleName?: string;
+  course?: string;
+  yearLevel?: string;
+  email: string;
   address?: string;
 }
 
@@ -56,9 +70,7 @@ export const loginUser = async (input: LoginInput): Promise<SafeUser> => {
   return toSafeUser(user);
 };
 
-export const registerUser = async (
-  input: RegisterInput,
-): Promise<SafeUser> => {
+export const registerUser = async (input: RegisterInput): Promise<SafeUser> => {
   const role = assertRole(input.role);
   const idNumber = normalize(input.idNumber);
   const email = normalize(input.email).toLowerCase();
@@ -70,7 +82,10 @@ export const registerUser = async (
     throw new Error("Missing required registration fields.");
   }
 
-  if (role === "STUDENT" && (!normalize(input.course ?? "") || !normalize(input.yearLevel ?? ""))) {
+  if (
+    role === "STUDENT" &&
+    (!normalize(input.course ?? "") || !normalize(input.yearLevel ?? ""))
+  ) {
     throw new Error("Student accounts require course and year level.");
   }
 
@@ -96,3 +111,56 @@ export const registerUser = async (
 
   return toSafeUser(user);
 };
+
+export const updateStudentProfile = async (
+  input: UpdateStudentProfileInput,
+): Promise<SafeUser> => {
+  if (!Number.isInteger(input.userId) || input.userId <= 0) {
+    throw new Error("Invalid user ID.");
+  }
+
+  const existingUser = await findUserById(input.userId);
+
+  if (!existingUser) {
+    throw new Error("Student account not found.");
+  }
+
+  if (existingUser.role !== "STUDENT") {
+    throw new Error("Only student accounts can update this profile.");
+  }
+
+  const firstName = normalize(input.firstName);
+  const lastName = normalize(input.lastName);
+  const email = normalize(input.email).toLowerCase();
+  const course = normalize(input.course ?? "");
+  const yearLevel = normalize(input.yearLevel ?? "");
+  const address = normalize(input.address ?? "");
+  const middleName = normalize(input.middleName ?? "");
+
+  if (!firstName || !lastName || !email || !course || !yearLevel || !address) {
+    throw new Error("Missing required profile fields.");
+  }
+
+  const emailOwner = await findUserByEmailExcludingId(email, input.userId);
+
+  if (emailOwner) {
+    throw new Error("The email address is already in use.");
+  }
+
+  const updatedUser = await updateStudentProfileById(input.userId, {
+    firstName,
+    lastName,
+    middleName: middleName || null,
+    course,
+    yearLevel,
+    email,
+    address,
+  });
+
+  if (!updatedUser) {
+    throw new Error("Unable to update profile.");
+  }
+
+  return toSafeUser(updatedUser);
+};
+

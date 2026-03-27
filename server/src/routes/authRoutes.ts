@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { loginUser, registerUser } from "../services/authService";
+import {
+  loginUser,
+  registerUser,
+  updateStudentProfile,
+} from "../services/authService";
 import type { UserRole } from "../types/auth";
 
 export const authRouter = Router();
@@ -53,3 +57,29 @@ authRouter.post("/register", async (req, res) => {
     return res.status(400).json({ message });
   }
 });
+
+authRouter.put("/students/:id/profile", async (req, res) => {
+  try {
+    const user = await updateStudentProfile({
+      userId: Number(req.params.id),
+      lastName: String(req.body.lastName ?? ""),
+      firstName: String(req.body.firstName ?? ""),
+      middleName: req.body.middleName ? String(req.body.middleName) : "",
+      course: req.body.course ? String(req.body.course) : "",
+      yearLevel: req.body.yearLevel ? String(req.body.yearLevel) : "",
+      email: String(req.body.email ?? ""),
+      address: req.body.address ? String(req.body.address) : "",
+    });
+
+    return res.status(200).json({
+      message: "Profile updated successfully.",
+      user,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to update profile.";
+
+    return res.status(400).json({ message });
+  }
+});
+
