@@ -57,3 +57,27 @@ export const registerRequest = async (payload: {
 
   return parseResponse(response);
 };
+
+export const updateStudentProfileRequest = async (
+  userId: number,
+  payload: {
+    lastName: string;
+    firstName: string;
+    middleName: string;
+    course: string;
+    yearLevel: string;
+    email: string;
+    address: string;
+  },
+) => {
+  const response = await fetch(`${API_URL}/auth/students/${userId}/profile`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return parseResponse(response);
+};
+

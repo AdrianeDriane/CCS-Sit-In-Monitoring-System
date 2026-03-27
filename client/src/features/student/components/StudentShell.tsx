@@ -40,10 +40,11 @@ const getInitials = (user: AuthUser) =>
 export type StudentOutletContext = {
   user: AuthUser;
   studentName: string;
+  onUserUpdated: (user: AuthUser) => void;
 };
 
 const StudentShell: React.FC = () => {
-  const user = getAuthUser();
+  const [user, setUser] = useState<AuthUser | null>(() => getAuthUser());
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
@@ -61,10 +62,6 @@ const StudentShell: React.FC = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    setIsNotificationOpen(false);
-  }, [location.pathname]);
 
   if (!user || user.role !== "STUDENT") {
     return <Navigate to="/login" replace />;
@@ -239,7 +236,15 @@ const StudentShell: React.FC = () => {
             initial="hidden"
             animate="visible"
           >
-            <Outlet context={{ user, studentName }} />
+            <Outlet
+              context={{
+                user,
+                studentName,
+                onUserUpdated: (nextUser: AuthUser) => {
+                  setUser(nextUser);
+                },
+              }}
+            />
           </motion.div>
         </motion.main>
       </div>
