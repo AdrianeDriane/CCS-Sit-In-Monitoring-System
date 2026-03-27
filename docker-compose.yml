@@ -29,6 +29,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      HOST: 0.0.0.0
       PORT: 4000
       DB_HOST: postgres
       DB_PORT: 5432
@@ -36,7 +37,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_SSL: "false"
-      CLIENT_ORIGIN: http://localhost:5173
+      CLIENT_ORIGIN: "*"
     ports:
       - "4000:4000"
     volumes:
@@ -53,8 +54,6 @@ services:
     restart: unless-stopped
     depends_on:
       - server
-    environment:
-      VITE_API_URL: http://localhost:4000/api
     ports:
       - "5173:5173"
     volumes:

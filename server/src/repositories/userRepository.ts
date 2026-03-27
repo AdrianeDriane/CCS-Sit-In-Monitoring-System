@@ -18,6 +18,7 @@ export interface CreateUserInput {
 }
 
 export interface UpdateStudentProfileInput {
+  idNumber?: string;
   lastName: string;
   firstName: string;
   middleName?: string | null;
@@ -25,6 +26,7 @@ export interface UpdateStudentProfileInput {
   yearLevel?: string | null;
   email: string;
   address?: string | null;
+  remainingSessions?: number;
 }
 
 const columns = [
@@ -58,6 +60,19 @@ export const findUserById = async (id: number) => {
   const user = await db(USERS_TABLE).select(columns).where({ id }).first();
 
   return (user ?? null) as UserRecord | null;
+};
+
+export const listStudents = async () => {
+  const users = await db(USERS_TABLE)
+    .select(columns)
+    .where({ role: "STUDENT" })
+    .orderBy([
+      { column: "last_name", order: "asc" },
+      { column: "first_name", order: "asc" },
+      { column: "id_number", order: "asc" },
+    ]);
+
+  return users as UserRecord[];
 };
 
 export const createUser = async (input: CreateUserInput) => {
@@ -113,12 +128,26 @@ export const findUserByEmailExcludingId = async (email: string, id: number) => {
   return (user ?? null) as UserRecord | null;
 };
 
+export const findUserByIdNumberExcludingId = async (
+  idNumber: string,
+  id: number,
+) => {
+  const user = await db(USERS_TABLE)
+    .select(columns)
+    .whereILike("id_number", idNumber)
+    .whereNot({ id })
+    .first();
+
+  return (user ?? null) as UserRecord | null;
+};
+
 export const updateStudentProfileById = async (
   id: number,
   input: UpdateStudentProfileInput,
 ) => {
   const [user] = await db(USERS_TABLE)
     .update({
+      ...(input.idNumber ? { id_number: input.idNumber } : {}),
       last_name: input.lastName,
       first_name: input.firstName,
       middle_name: input.middleName ?? null,
@@ -126,9 +155,21 @@ export const updateStudentProfileById = async (
       year_level: input.yearLevel ?? null,
       email: input.email,
       address: input.address ?? null,
+      ...(typeof input.remainingSessions === "number"
+        ? { remaining_sessions: input.remainingSessions }
+        : {}),
       updated_at: db.fn.now(),
     })
     .where({ id })
+    .returning(columns);
+
+  return (user ?? null) as UserRecord | null;
+};
+
+export const deleteStudentById = async (id: number) => {
+  const [user] = await db(USERS_TABLE)
+    .where({ id, role: "STUDENT" })
+    .delete()
     .returning(columns);
 
   return (user ?? null) as UserRecord | null;

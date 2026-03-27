@@ -6,8 +6,8 @@ const start = async () => {
   try {
     await db.raw("select 1");
 
-    app.listen(env.port, () => {
-      console.log(`Server listening on port ${env.port}`);
+    app.listen(env.port, env.host, () => {
+      console.log(`Server listening on http://${env.host}:${env.port}`);
     });
   } catch (error) {
     console.error("Failed to connect to PostgreSQL.", error);

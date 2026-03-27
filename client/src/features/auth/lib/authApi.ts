@@ -1,10 +1,25 @@
 import type { AuthUser, UserRole } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const API_URL =
+  configuredApiUrl ||
+  `${window.location.protocol}//${window.location.hostname}:4000/api`;
 
 interface ApiResponse {
   message: string;
   user: AuthUser;
+}
+
+export interface AdminStudentUpdatePayload {
+  idNumber: string;
+  lastName: string;
+  firstName: string;
+  middleName: string;
+  course: string;
+  yearLevel: string;
+  email: string;
+  address: string;
+  remainingSessions: number;
 }
 
 const parseResponse = async (response: Response): Promise<ApiResponse> => {
@@ -81,3 +96,45 @@ export const updateStudentProfileRequest = async (
   return parseResponse(response);
 };
 
+export const fetchStudentsRequest = async () => {
+  const response = await fetch(`${API_URL}/auth/students`);
+  const payload = (await response.json()) as {
+    message?: string;
+    students?: AuthUser[];
+  };
+
+  if (!response.ok || !payload.students) {
+    throw new Error(payload.message ?? "Unable to fetch students.");
+  }
+
+  return payload.students;
+};
+
+export const updateStudentRequest = async (
+  userId: number,
+  payload: AdminStudentUpdatePayload,
+) => {
+  const response = await fetch(`${API_URL}/auth/students/${userId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return parseResponse(response);
+};
+
+export const deleteStudentRequest = async (userId: number) => {
+  const response = await fetch(`${API_URL}/auth/students/${userId}`, {
+    method: "DELETE",
+  });
+
+  const payload = (await response.json()) as { message?: string };
+
+  if (!response.ok) {
+    throw new Error(payload.message ?? "Unable to delete student.");
+  }
+
+  return payload.message ?? "Student deleted successfully.";
+};

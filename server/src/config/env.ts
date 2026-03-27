@@ -8,8 +8,9 @@ const toNumber = (value: string | undefined, fallback: number) => {
 };
 
 export const env = {
+  host: process.env.HOST ?? "0.0.0.0",
   port: toNumber(process.env.PORT, 4000),
-  clientOrigin: process.env.CLIENT_ORIGIN ?? "http://localhost:5173",
+  clientOrigin: process.env.CLIENT_ORIGIN ?? "*",
   database: {
     host: process.env.DB_HOST ?? "127.0.0.1",
     port: toNumber(process.env.DB_PORT, 5432),

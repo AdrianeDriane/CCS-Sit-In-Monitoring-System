@@ -1,4 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const API_URL =
+  configuredApiUrl ||
+  `${window.location.protocol}//${window.location.hostname}:4000/api`;
 
 export interface SitInRecord {
   id: number;

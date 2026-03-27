@@ -8,6 +8,7 @@ const navigationItems = [
   { label: "Dashboard", to: "/ws", icon: "dashboard" },
   { label: "Sit-In", to: "/ws/sitin", icon: "badge" },
   { label: "Records", to: "/ws/records", icon: "table" },
+  { label: "Students", to: "/ws/students", icon: "group" },
 ] as const;
 
 const buildAdminName = (user: AuthUser) =>

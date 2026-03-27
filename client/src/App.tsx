@@ -12,6 +12,7 @@ import WsShell from "./features/ws/components/WsShell";
 import WsDashboardPage from "./features/ws/pages/WsDashboardPage";
 import WsRecordsPage from "./features/ws/pages/WsRecordsPage";
 import WsSitInPage from "./features/ws/pages/WsSitInPage";
+import WsStudentsPage from "./features/ws/pages/WsStudentsPage";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="sitin" element={<WsSitInPage />} />
           <Route path="sitin/:idNumber" element={<WsSitInPage />} />
           <Route path="records" element={<WsRecordsPage />} />
+          <Route path="students" element={<WsStudentsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

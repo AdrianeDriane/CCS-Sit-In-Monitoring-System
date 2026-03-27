@@ -1,9 +1,12 @@
 import {
   createUser,
+  deleteStudentById,
   findUserByEmailExcludingId,
   findUserById,
+  findUserByIdNumberExcludingId,
   findUserByIdNumberOrEmail,
   findUserByIdentifier,
+  listStudents,
   updateStudentProfileById,
 } from "../repositories/userRepository";
 import { USER_ROLES, type SafeUser, type UserRole } from "../types/auth";
@@ -31,6 +34,7 @@ export interface RegisterInput {
 
 export interface UpdateStudentProfileInput {
   userId: number;
+  idNumber?: string;
   lastName: string;
   firstName: string;
   middleName?: string;
@@ -38,6 +42,7 @@ export interface UpdateStudentProfileInput {
   yearLevel?: string;
   email: string;
   address?: string;
+  remainingSessions?: number;
 }
 
 const normalize = (value: string) => value.trim();
@@ -163,4 +168,95 @@ export const updateStudentProfile = async (
   }
 
   return toSafeUser(updatedUser);
+};
+
+export const listStudentAccounts = async (): Promise<SafeUser[]> => {
+  const students = await listStudents();
+  return students.map(toSafeUser);
+};
+
+export const updateStudentByAdmin = async (
+  input: UpdateStudentProfileInput,
+): Promise<SafeUser> => {
+  if (!Number.isInteger(input.userId) || input.userId <= 0) {
+    throw new Error("Invalid user ID.");
+  }
+
+  const existingUser = await findUserById(input.userId);
+
+  if (!existingUser) {
+    throw new Error("Student account not found.");
+  }
+
+  if (existingUser.role !== "STUDENT") {
+    throw new Error("Only student accounts can be edited here.");
+  }
+
+  const idNumber = normalize(input.idNumber ?? "");
+  const firstName = normalize(input.firstName);
+  const lastName = normalize(input.lastName);
+  const email = normalize(input.email).toLowerCase();
+  const course = normalize(input.course ?? "");
+  const yearLevel = normalize(input.yearLevel ?? "");
+  const address = normalize(input.address ?? "");
+  const middleName = normalize(input.middleName ?? "");
+  const remainingSessions = Number(input.remainingSessions);
+
+  if (
+    !idNumber ||
+    !firstName ||
+    !lastName ||
+    !email ||
+    !course ||
+    !yearLevel ||
+    !address
+  ) {
+    throw new Error("Missing required student fields.");
+  }
+
+  if (!Number.isInteger(remainingSessions) || remainingSessions < 0) {
+    throw new Error("Remaining sessions must be zero or greater.");
+  }
+
+  const emailOwner = await findUserByEmailExcludingId(email, input.userId);
+
+  if (emailOwner) {
+    throw new Error("The email address is already in use.");
+  }
+
+  const idNumberOwner = await findUserByIdNumberExcludingId(idNumber, input.userId);
+
+  if (idNumberOwner) {
+    throw new Error("The ID number is already in use.");
+  }
+
+  const updatedUser = await updateStudentProfileById(input.userId, {
+    idNumber,
+    firstName,
+    lastName,
+    middleName: middleName || null,
+    course,
+    yearLevel,
+    email,
+    address,
+    remainingSessions,
+  });
+
+  if (!updatedUser) {
+    throw new Error("Unable to update student.");
+  }
+
+  return toSafeUser(updatedUser);
+};
+
+export const hardDeleteStudent = async (userId: number): Promise<void> => {
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw new Error("Invalid user ID.");
+  }
+
+  const deletedUser = await deleteStudentById(userId);
+
+  if (!deletedUser) {
+    throw new Error("Student account not found.");
+  }
 };
